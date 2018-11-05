@@ -1,9 +1,15 @@
 import React, {Component} from 'react';
 import Header from './common/header'
+import { Globalstyle } from './style'
+import {Iconstyle} from './statics/iconfont/iconfont'
 class App extends Component{
     render(){
         return(
-           <Header/>
+            <div>
+                <Globalstyle/>
+                <Iconstyle/>
+                <Header/>
+            </div>
         )
     }
 }
