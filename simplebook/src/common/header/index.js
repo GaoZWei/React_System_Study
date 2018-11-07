@@ -1,17 +1,45 @@
 import React from "react";
 import { CSSTransition } from "react-transition-group";
 import { connect } from "react-redux";
-import {actionCreator} from './store'
+import { actionCreator } from "./store";
 import {
   HeaderWrapper,
   Logo,
   Nav,
   NavItem,
   NavSearch,
+  SearchInfo,
+  SearchInfoTitle,
+  SearchInfoSwitch,
+  SearchInfoList,
+  SearchInfoItem,
   Addition,
   Button,
   SearchWrapper
 } from "./style";
+//实现搜索弹出框的显示
+const getListArr = show => {
+  if (show) {
+    return (
+      <SearchInfo>
+        <SearchInfoTitle>
+          热门搜索
+          <SearchInfoSwitch>换一批</SearchInfoSwitch>
+        </SearchInfoTitle>
+        <SearchInfoList>
+          <SearchInfoItem>教育</SearchInfoItem>
+          <SearchInfoItem>教育</SearchInfoItem>
+          <SearchInfoItem>教育</SearchInfoItem>
+          <SearchInfoItem>教育</SearchInfoItem>
+          <SearchInfoItem>教育</SearchInfoItem>
+          <SearchInfoItem>教育</SearchInfoItem>
+        </SearchInfoList>
+      </SearchInfo>
+    );
+  } else {
+    return null;
+  }
+};
 const Header = props => {
   return (
     <HeaderWrapper>
@@ -34,6 +62,7 @@ const Header = props => {
           <i className={props.focused ? "focused iconfont" : "iconfont"}>
             &#xe637;
           </i>
+          {getListArr(props.focused)}
         </SearchWrapper>
       </Nav>
       <Addition>
@@ -49,7 +78,9 @@ const Header = props => {
 
 const mapStateToProps = state => {
   return {
-    focused: state.header.focused
+    focused: state.getIn(["header", "focused"])
+    // 与上面等价
+    //state.get('header').get('focused')
   };
 };
 const mapDispatchToProps = dispatch => {
