@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Component } from "react";
 import { CSSTransition } from "react-transition-group";
 import { connect } from "react-redux";
 import { actionCreator } from "./store";
@@ -18,78 +18,140 @@ import {
   SearchWrapper
 } from "./style";
 //实现搜索弹出框的显示
-const getListArr = show => {
-  if (show) {
-    return (
-      <SearchInfo>
-        <SearchInfoTitle>
-          热门搜索
-          <SearchInfoSwitch>换一批</SearchInfoSwitch>
-        </SearchInfoTitle>
-        <SearchInfoList>
-          <SearchInfoItem>教育</SearchInfoItem>
-          <SearchInfoItem>教育</SearchInfoItem>
-          <SearchInfoItem>教育</SearchInfoItem>
-          <SearchInfoItem>教育</SearchInfoItem>
-          <SearchInfoItem>教育</SearchInfoItem>
-          <SearchInfoItem>教育</SearchInfoItem>
-        </SearchInfoList>
-      </SearchInfo>
-    );
-  } else {
-    return null;
+
+class Header extends Component {
+  getListArr() {
+    const {
+      focused,
+      list,
+      totalPage,
+      page,
+      mouseIn,
+      mouseEnter,
+      mouseLeave,
+      handleChangePage
+    } = this.props;
+    //将immutable对象转化为js对象
+
+    //当前页列表+当前页+总页数
+    const newList = list.toJS();
+    var pageList = [];
+    if (newList.length) {
+      for (let i = (page - 1) * 10; i < page * 10; i++) {
+        pageList.push(
+          <SearchInfoItem key={newList[i]}>{newList[i]}</SearchInfoItem>
+        );
+      }
+    }
+    if (focused || mouseIn) {
+      return (
+        <SearchInfo onMouseEnter={mouseEnter} onMouseLeave={mouseLeave}>
+          <SearchInfoTitle>
+            热门搜索
+            <SearchInfoSwitch
+              onClick={() => handleChangePage(page, totalPage, this.spinIcon)}
+            >
+              <i
+                ref={icon => {
+                  this.spinIcon = icon;
+                }}
+                className="iconfont spin"
+              >
+                &#xe851;
+              </i>
+              换一批
+            </SearchInfoSwitch>
+          </SearchInfoTitle>
+          <SearchInfoList>{pageList}</SearchInfoList>
+        </SearchInfo>
+      );
+    } else {
+      return null;
+    }
   }
-};
-const Header = props => {
-  return (
-    <HeaderWrapper>
-      <Logo />
-      <Nav>
-        <NavItem className="left active">首页</NavItem>
-        <NavItem className="left">下载App</NavItem>
-        <NavItem className="right">
-          <i className="iconfont">&#xe636;</i>
-        </NavItem>
-        <NavItem className="right">登录</NavItem>
-        <SearchWrapper>
-          <CSSTransition in={props.focused} timeout={200} classNames="slide">
-            <NavSearch
-              className={props.focused ? "focused" : ""}
-              onFocus={props.handleFocus}
-              onBlur={props.handleBlur}
-            />
-          </CSSTransition>
-          <i className={props.focused ? "focused iconfont" : "iconfont"}>
-            &#xe637;
-          </i>
-          {getListArr(props.focused)}
-        </SearchWrapper>
-      </Nav>
-      <Addition>
-        <Button className="writting">
-          <i className="iconfont">&#xe615;</i>
-          写文章
-        </Button>
-        <Button className="reg">注册</Button>
-      </Addition>
-    </HeaderWrapper>
-  );
-};
+  render() {
+    const { focused, list, handleFocus, handleBlur } = this.props;
+    return (
+      <HeaderWrapper>
+        <Logo />
+        <Nav>
+          <NavItem className="left active">首页</NavItem>
+          <NavItem className="left">下载App</NavItem>
+          <NavItem className="right">
+            <i className="iconfont">&#xe636;</i>
+          </NavItem>
+          <NavItem className="right">登录</NavItem>
+          <SearchWrapper>
+            <CSSTransition in={focused} timeout={200} classNames="slide">
+              <NavSearch
+                className={focused ? "focused" : ""}
+                onFocus={() => handleFocus(list)}
+                onBlur={handleBlur}
+              />
+            </CSSTransition>
+            <i className={focused ? "focused iconfont zoom" : "iconfont zoom"}>
+              &#xe637;
+            </i>
+            {this.getListArr(focused)}
+          </SearchWrapper>
+        </Nav>
+        <Addition>
+          <Button className="writting">
+            <i className="iconfont">&#xe615;</i>
+            写文章
+          </Button>
+          <Button className="reg">注册</Button>
+        </Addition>
+      </HeaderWrapper>
+    );
+  }
+}
 
 const mapStateToProps = state => {
   return {
-    focused: state.getIn(["header", "focused"])
+    focused: state.getIn(["header", "focused"]),
+    list: state.getIn(["header", "list"]),
+    totalPage: state.getIn(["header", "totalPage"]),
+    page: state.getIn(["header", "page"]),
+    mouseIn: state.getIn(["header", "mouseIn"])
     // 与上面等价
     //state.get('header').get('focused')
   };
 };
 const mapDispatchToProps = dispatch => {
   return {
-    handleFocus() {
+    handleFocus(list) {
+      if (list.size === 0) {
+        dispatch(actionCreator.getList());
+      }
       dispatch(actionCreator.searchFocus());
     },
     handleBlur() {
       dispatch(actionCreator.searchBlur());
+    },
+    mouseEnter() {
+      dispatch(actionCreator.handleMouseEnter());
+    },
+    mouseLeave() {
+      dispatch(actionCreator.handleMouseLeave());
+    },
+    handleChangePage(page, totalPage, spin) {
+      // spin为ref取得的真实DOM
+      //判断上次的角度
+      let orginAngle = spin.style.transform.replace(/[^0-9]/gi, "");
+      // console.log(orginAngle)
+      if (orginAngle) {
+        orginAngle = parseInt(orginAngle, 10);
+      } else {
+        orginAngle = 0;
+      }
+      spin.style.transform = "rotate(" + (orginAngle + 360) + "deg)";
+      // console.log(spin.style.transform);
+      if (page < totalPage) {
+        dispatch(actionCreator.handleChangePage(page + 1));
+      } else {
+        dispatch(actionCreator.handleChangePage(1));
+      }
     }
   };
 };
