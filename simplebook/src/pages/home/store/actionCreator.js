@@ -32,3 +32,8 @@ export const addListItem = page => {
     });
   };
 };
+
+export const toggleTopShow=(show)=>({
+  type:actionTypes.TOGGLE_SCROLL_TOP,
+  show
+})
