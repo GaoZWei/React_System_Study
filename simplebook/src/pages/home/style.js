@@ -95,3 +95,15 @@ export const WriterWrapper = styled.div `
     border-radius:3px;
     text-align:center;
 `
+
+export const LoadMore = styled.div `
+    width:100%;
+    height:40px;
+    line-height:40px;
+    background:#a5a5a5;
+    border-radius:20px;
+    text-align:center;
+    color:#fff;
+    margin:20px 0;
+    cursor:pointer;
+`
