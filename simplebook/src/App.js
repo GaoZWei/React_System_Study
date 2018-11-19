@@ -5,6 +5,7 @@ import { BrowserRouter, Route } from "react-router-dom";
 import Home from "./pages/home";
 import Detail from "./pages/detail";
 import Header from "./common/header";
+import Login from './pages/login'
 //引入全局样式
 import { Globalstyle } from "./style";
 import { Iconstyle } from "./statics/iconfont/iconfont";
@@ -19,7 +20,8 @@ class App extends Component {
             <div>
               <Header />
               <Route path="/" exact component={Home} />
-              <Route path="/detail" exact component={Detail} />
+              <Route path="/login" exact component={Login} />
+              <Route path="/detail/:id" exact component={Detail} />
             </div>
           </BrowserRouter>
         </div>
